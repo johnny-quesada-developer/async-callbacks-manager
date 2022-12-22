@@ -1,6 +1,6 @@
 {
   "name": "async-callbacks-manager",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "small library for managing async callbacks, callbacks can be queued singly or into groups. It makes simply the task of queueing promise's and canceling them if necessary.",
   "main": "index.js",
   "author": "Johnny Quesada <johnny-qc@hotmail.com>",
