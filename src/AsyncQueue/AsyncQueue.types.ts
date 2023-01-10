@@ -1,7 +1,4 @@
-import {
-  TCancelablePromise,
-  TDecoupledCancelablePromise,
-} from '../CancelablePromise';
+import { TCancelablePromise } from 'cancelable-promise-jq';
 
 export type TAsyncQueueCallback<T = unknown> = () =>
   | Promise<T>

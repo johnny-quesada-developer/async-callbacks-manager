@@ -1,10 +1,10 @@
 import {
-  TCancelablePromise,
-  TDecoupledCancelablePromise,
   createDecoupledPromise,
   groupAsCancelablePromise,
+  TCancelablePromise,
+  TDecoupledCancelablePromise,
   toCancelablePromise,
-} from '../CancelablePromise';
+} from 'cancelable-promise-jq/lib';
 
 import {
   TAsyncQueue,
