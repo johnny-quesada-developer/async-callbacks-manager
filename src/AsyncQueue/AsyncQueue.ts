@@ -1,11 +1,10 @@
 import {
-  createDecoupledPromise,
-  groupAsCancelablePromise,
-  TCancelablePromise,
   TDecoupledCancelablePromise,
+  CancelablePromise,
+  createDecoupledPromise,
   toCancelablePromise,
-} from 'cancelable-promise-jq/lib';
-
+  groupAsCancelablePromise,
+} from 'cancelable-promise-jq';
 import {
   TAsyncQueue,
   TAsyncQueueCallback,
@@ -82,7 +81,7 @@ export class AsyncQueue implements TAsyncQueue {
   /**
    * The currentPromises is a set of promises that are currently executing
    * */
-  private runningPromises: Set<TCancelablePromise> = new Set();
+  private runningPromises: Set<CancelablePromise<unknown>> = new Set();
 
   public config: TAsyncQueueConfig = {
     executeImmediately: true,
@@ -182,7 +181,7 @@ export class AsyncQueue implements TAsyncQueue {
    * */
   private addOneCallbacksToTheQueue = <TResult>(
     callback: TAsyncQueueCallback
-  ): TCancelablePromise<TResult> => {
+  ): CancelablePromise<TResult> => {
     const decoupledPromise = createDecoupledPromise<TResult>();
     this.queue.push([
       decoupledPromise as TDecoupledCancelablePromise<unknown>,
@@ -205,7 +204,7 @@ export class AsyncQueue implements TAsyncQueue {
       TAsyncQueueCallback<unknown>
     ],
     config: TAsyncQueueConfig
-  ): TCancelablePromise<TResult> => {
+  ): CancelablePromise<TResult> => {
     config.beforeEachCallback?.();
 
     let promise = toCancelablePromise(callback);
@@ -223,7 +222,7 @@ export class AsyncQueue implements TAsyncQueue {
     // if the parent promise is canceled, we cancel the in progress promise
     decoupledPromise.onCancel(promise.cancel);
 
-    return decoupledPromise.promise as TCancelablePromise<TResult>;
+    return decoupledPromise.promise as CancelablePromise<TResult>;
   };
 
   /**
@@ -241,7 +240,7 @@ export class AsyncQueue implements TAsyncQueue {
   public enqueue = <TResult>(
     callback: TAsyncQueueCallback,
     config: TAsyncQueueConfig = {}
-  ): TCancelablePromise<TResult> => {
+  ): CancelablePromise<TResult> => {
     const promise = this.addOneCallbacksToTheQueue<TResult>(callback);
 
     this.computeNextTick(config);
@@ -275,7 +274,7 @@ export class AsyncQueue implements TAsyncQueue {
   public enqueueAll = <TResult extends Array<unknown>>(
     callbacks: TAsyncQueueCallback[],
     config: TAsyncQueueConfig = {}
-  ): TCancelablePromise<TResult> => {
+  ): CancelablePromise<TResult> => {
     const promise = groupAsCancelablePromise<TResult>(
       callbacks.map((callback) => this.addOneCallbacksToTheQueue(callback)),
       {
@@ -301,7 +300,7 @@ export class AsyncQueue implements TAsyncQueue {
    * */
   public execute = <TResult extends Array<Array<unknown>>>(
     config: Omit<TAsyncQueueConfig, 'executeImmediately'> = {}
-  ): TCancelablePromise<TResult> | null => {
+  ): CancelablePromise<TResult> | null => {
     if (!this.queue.length) return null;
 
     const callbacks = this.queue.map(
@@ -317,7 +316,7 @@ export class AsyncQueue implements TAsyncQueue {
       this.queue = [];
     });
 
-    return promise as TCancelablePromise<TResult>;
+    return promise as CancelablePromise<TResult>;
   };
 
   /**
@@ -333,14 +332,14 @@ export class AsyncQueue implements TAsyncQueue {
    * */
   public pop = <TResult extends Array<Array<unknown>>>(
     config: Omit<TAsyncQueueConfig, 'executeImmediately'> = {}
-  ): TCancelablePromise<TResult> => {
+  ): CancelablePromise<TResult> => {
     if (!this.queue.length) return null;
 
     const promise = this.executeCallback(this.queue.shift(), config);
 
     promise.finally(() => this.computeNextTick(config));
 
-    return promise as TCancelablePromise<TResult>;
+    return promise as CancelablePromise<TResult>;
   };
 
   /**

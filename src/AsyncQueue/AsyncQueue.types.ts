@@ -1,8 +1,8 @@
-import { TCancelablePromise } from 'cancelable-promise-jq';
+import { CancelablePromise } from 'cancelable-promise-jq';
 
 export type TAsyncQueueCallback<T = unknown> = () =>
   | Promise<T>
-  | TCancelablePromise<T>;
+  | CancelablePromise<T>;
 
 export type TAsyncQueueConfig = {
   executeImmediately?: boolean;
@@ -31,7 +31,7 @@ export type TAsyncQueue = {
   enqueue: <TResult>(
     callback: TAsyncQueueCallback,
     config: TAsyncQueueConfig
-  ) => TCancelablePromise<TResult>;
+  ) => CancelablePromise<TResult>;
 
   /**
    * Enqueue a group of callbacks to the be executed and return a promise that is resolved when all the callbacks are executed
@@ -48,7 +48,7 @@ export type TAsyncQueue = {
   enqueueAll: <TResult extends Array<unknown>>(
     callbacks: TAsyncQueueCallback[],
     config: TAsyncQueueConfig
-  ) => TCancelablePromise<TResult>;
+  ) => CancelablePromise<TResult>;
 
   /**
    * Execute all the callbacks that are currently in the queue
@@ -62,7 +62,7 @@ export type TAsyncQueue = {
    * */
   execute: <TResult extends Array<Array<unknown>>>(
     config: Omit<TAsyncQueueConfig, 'executeImmediately'>
-  ) => TCancelablePromise<TResult> | null;
+  ) => CancelablePromise<TResult> | null;
 
   /**
    * Execute the next callback in the queue and return a promise that is resolved when the callback is executed
@@ -77,7 +77,7 @@ export type TAsyncQueue = {
    * */
   pop: <TResult extends Array<Array<unknown>>>(
     config: Omit<TAsyncQueueConfig, 'executeImmediately'>
-  ) => TCancelablePromise<TResult> | null;
+  ) => CancelablePromise<TResult> | null;
 
   /**
    * Cancels all the promises in the queue and the current promises
